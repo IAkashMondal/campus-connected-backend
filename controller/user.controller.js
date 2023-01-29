@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const UserModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const generateToken = require("../configs/token.genarate");
 // Register User---------------------------------------------------------------------------->
 
@@ -40,14 +41,17 @@ const LoginUser = asyncHandler(async (req, res) => {
   try {
     const user = await UserModel.find({ email });
     if (user.length > 0) {
-      bcrypt.compare(password, user[0].password, (err, result) => {
+      bcrypt.compare(password, user[0].password, async (err, result) => {
         if (result) {
           const token = jwt.sign(
             { Userid: user[0]._id },
             process.env.JWT_SECRET
           );
           console.log(user, "login user deatils");
-          res.send({ massege: "User login", token: token });
+          await UserModel.findByIdAndUpdate(user[0]._id, {
+            lastLogin: new Date().toLocaleTimeString()
+          });
+          res.send({ massege: "User login", campus_connect_token: token });
         } else {
           res.send({ massege: "wrong credentials1" });
         }
@@ -72,12 +76,35 @@ const searchUsers = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const users = await UserModel.find(keyword)
+  const users = await UserModel.find(keyword);
   res.send(users);
+});
+
+// User Logout---------------------------------------------------------------------------->
+const Userlogout = asyncHandler(async (req, res) => {
+  const userId = req.body;
+  res.send(userId)
+  try {
+    if (userId) {
+      await UserModel.findByIdAndUpdate(userId, {
+        lastSeen: new Date().toLocaleTimeString(),
+      });
+      localStorage.removeItem("campus_connect_token");
+      res.send({ message: "User logged out successfully" });
+    } else {
+      res.status(200);
+      res.send({ massege: "someThing went Wrong" });
+    }
+  } catch {
+    res.status(200);
+    res.send({ massege: "someThing went Wrong" });
+  }
+  console.log(userId,"uderId")
 });
 
 module.exports = {
   registerUser,
   LoginUser,
   searchUsers,
+  Userlogout,
 };

@@ -16,6 +16,8 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    lastLogin: { type: String },
+    lastseen:{type :String, default:null}
   },
   { timestamps: true }
 );

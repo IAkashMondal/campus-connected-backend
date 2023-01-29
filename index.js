@@ -22,7 +22,7 @@ app.use("/user",userRouter)
 app.use("/chats", ChatRouter);
 app.use("/message", MessagerRouter);
 
-const server = app.listen(process.env.PORT||5400, async () => {
+const server = app.listen(process.env.PORT||7400, async () => {
   try {
     await connection;
     console.log("Connected to Db");
