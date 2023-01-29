@@ -5,6 +5,8 @@ const { chats } = require("./data/data");
 const { connection } = require("./configs/db");
 const { userRouter } = require("./Routes/user.routes");
 const { ChatRouter } = require("./Routes/chats.routes");
+const { MessagerRouter } = require("./Routes/message.routes");
+
 
 const app = express();
 app.use(cors());
@@ -18,6 +20,7 @@ app.get("/", (req, res) => {
 });
 app.use("/user",userRouter)
 app.use("/chats", ChatRouter);
+app.use("/message", MessagerRouter);
 
 const server = app.listen(process.env.PORT||5400, async () => {
   try {
